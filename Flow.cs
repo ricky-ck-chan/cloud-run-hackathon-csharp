@@ -82,7 +82,7 @@
             return "F";
         }
 
-        if (canMoveForward)
+        if (canMoveForward && !me.GetFrontPosition().IsWall(dims))
             return "F";
         return me.MoveArenaCenter(model.Arena.Dims);
     }

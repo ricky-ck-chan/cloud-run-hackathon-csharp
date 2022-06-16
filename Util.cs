@@ -58,6 +58,12 @@ static class Extension
         }
         return false;
     }
+    public static bool IsWall(this Position pos, List<int> Dims)
+    {
+        var dimX = Dims[0] - 1;
+        var dimY = Dims[1] - 1;
+        return pos.X == 0 || pos.X == dimX || pos.Y == 0 || pos.Y == dimY;
+    }
     public static IEnumerable<Position> GetLeftPositions(this PlayerState player, int distance)
     {
         var poss = new List<Position>();

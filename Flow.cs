@@ -12,7 +12,8 @@
         var me = state[model.Links.Self.Href];
         var otherPlayers = state.Values.Where(x => x != me).ToList();
 
-        var isAnyoneInAttachRange = me.IsAnyoneInAttachRange(otherPlayers, attackDistance);
+        var frontPositions = me.GetFrontPositions(attackDistance);
+        var isAnyoneInAttachRange = frontPositions.Any(x => x.GetPlayerInPosition(state) != null);
         if (isAnyoneInAttachRange)
         {
             Visual.AddMessageLine("Someone in my attack range");
@@ -24,7 +25,26 @@
         var canMoveForward = me.CanMoveForward(model.Arena.Dims, otherPlayers);
         Visual.AddMessageLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
 
-        var inAttackRange = !me.GetPosition().IsSafePosition(otherPlayers, attackDistance);
+        var leftPositions = me.GetLeftPositions(attackDistance);
+        var leftPlayers = leftPositions.Select(x => x.GetPlayerInPosition(state)).OfType<PlayerState>().ToList();
+        var isLeftPlayerFacingMe = leftPlayers.Any(x => x.IsFacing(me));
+        if (isLeftPlayerFacingMe)
+            Visual.AddMessageLine("Someone facing me in left");
+
+
+        var rightPositions = me.GetRightPositions(attackDistance);
+        var rightPlayers = rightPositions.Select(x => x.GetPlayerInPosition(state)).OfType<PlayerState>().ToList();
+        var isRightPlayerFacingMe = rightPlayers.Any(x => x.IsFacing(me));
+        if (isRightPlayerFacingMe)
+            Visual.AddMessageLine("Someone facing me in right");
+
+        var backPositions = me.GetBackPositions(attackDistance);
+        var backPlayers = backPositions.Select(x => x.GetPlayerInPosition(state)).OfType<PlayerState>().ToList();
+        var isBackPlayerFacingMe = backPlayers.Any(x => x.IsFacing(me));
+        if (isBackPlayerFacingMe)
+            Visual.AddMessageLine("Someone facing me in back");
+
+        var inAttackRange = isBackPlayerFacingMe || isLeftPlayerFacingMe || isRightPlayerFacingMe;
         Visual.AddMessageLine($"I'm {(inAttackRange ? "" : "NOT ")}in attack range");
         if (inAttackRange)
         {
@@ -39,6 +59,15 @@
             Visual.AddMessageLine($"I can {(canEscape ? "" : "NOT ")}escape");
             if (canEscape)
                 return "F";
+            if (isLeftPlayerFacingMe)
+                return "R";
+            if (isRightPlayerFacingMe)
+                return "L";
+            if (leftPlayers.Count() > 0)
+                return "L";
+            if (rightPlayers.Count() > 0)
+                return "R";
+            return me.MoveArenaCenter(model.Arena.Dims);
         }
 
         var isAnyoneInMyFrontAttachRange = me.IsAnyoneInAttachRange(otherPlayers, attackDistance + 1);
@@ -48,10 +77,6 @@
             return "F";
         }
 
-
-
-        if (!canMoveForward) commands.Remove("F");
-
-        return "T";
+        return "F";
     }
 }

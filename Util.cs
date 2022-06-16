@@ -3,23 +3,166 @@ record Position(int X, int Y);
 record Range(Position Start, Position End);
 static class Extension
 {
-    public static Position GetPosition(this PlayerState player) => new(player.X, player.Y);
-    public static Position GetFrontPosition(this PlayerState player)
+    public static bool IsFacing(this PlayerState player, PlayerState target)
     {
         switch (player.Direction.ToUpper())
         {
             case "N":
-                return new Position(player.X, player.Y - 1);
+                return player.X == target.X && player.Y > target.Y;
             case "E":
-                return new Position(player.X + 1, player.Y);
+                return player.X < target.X && player.Y == target.Y;
             case "W":
-                return new Position(player.X - 1, player.Y);
+                return player.X > target.X && player.Y == target.Y;
             case "S":
-                return new Position(player.X, player.Y + 1);
+                return player.X == target.X && player.Y < target.Y;
+            default:
+                break;
+        }
+        return false;
+    }
+    public static IEnumerable<Position> GetLeftPositions(this PlayerState player, int distance)
+    {
+        var poss = new List<Position>();
+        for (var i = distance; i >= 1; i--)
+        {
+            poss.Add(player.GetLeftPosition(i));
+        }
+        return poss;
+    }
+    public static IEnumerable<Position> GetRightPositions(this PlayerState player, int distance)
+    {
+        var poss = new List<Position>();
+        for (var i = distance; i >= 1; i--)
+        {
+            poss.Add(player.GetRightPosition(i));
+        }
+        return poss;
+    }
+    public static IEnumerable<Position> GetFrontPositions(this PlayerState player, int distance)
+    {
+        var poss = new List<Position>();
+        for (var i = distance; i >= 1; i--)
+        {
+            poss.Add(player.GetFrontPosition(i));
+        }
+        return poss;
+    }
+    public static IEnumerable<Position> GetBackPositions(this PlayerState player, int distance)
+    {
+        var poss = new List<Position>();
+        for (var i = distance; i >= 1; i--)
+        {
+            poss.Add(player.GetBackPosition(i));
+        }
+        return poss;
+    }
+    public static IEnumerable<Position> GetVisablePositions(this PlayerState player, int distance)
+    {
+        var poss = new List<Position>();
+        poss.Add(player.GetLeftPosition(distance));
+        poss.Add(player.GetRightPosition(distance));
+        return poss;
+    }
+    public static IEnumerable<Position> GetAllVisablePositions(this PlayerState player, int distance)
+    {
+        var poss = new List<Position>();
+        for (var i = distance; i >= 1; i--)
+        {
+            poss.AddRange(player.GetVisablePositions(i));
+        }
+        return poss;
+    }
+    public static Position GetPosition(this PlayerState player) => new(player.X, player.Y);
+    public static Position GetFrontPosition(this PlayerState player, int distance = 1)
+    {
+        switch (player.Direction.ToUpper())
+        {
+            case "N":
+                return new Position(player.X, player.Y - distance);
+            case "E":
+                return new Position(player.X + distance, player.Y);
+            case "W":
+                return new Position(player.X - distance, player.Y);
+            case "S":
+                return new Position(player.X, player.Y + distance);
             default:
                 break;
         }
         return new Position(player.X, player.Y);
+    }
+    public static Position GetBackPosition(this PlayerState player, int distance = 1)
+    {
+        switch (player.Direction.ToUpper())
+        {
+            case "N":
+                return new Position(player.X, player.Y + distance);
+            case "E":
+                return new Position(player.X - distance, player.Y);
+            case "W":
+                return new Position(player.X + distance, player.Y);
+            case "S":
+                return new Position(player.X, player.Y - distance);
+            default:
+                break;
+        }
+        return new Position(player.X, player.Y);
+    }
+    public static Position GetLeftPosition(this PlayerState player, int distance = 1)
+    {
+        switch (player.Direction.ToUpper())
+        {
+            case "N":
+                return new Position(player.X - distance, player.Y);
+            case "E":
+                return new Position(player.X, player.Y - distance);
+            case "W":
+                return new Position(player.X, player.Y + distance);
+            case "S":
+                return new Position(player.X + distance, player.Y);
+            default:
+                break;
+        }
+        return new Position(player.X, player.Y);
+    }
+    public static Position GetRightPosition(this PlayerState player, int distance = 1)
+    {
+        switch (player.Direction.ToUpper())
+        {
+            case "N":
+                return new Position(player.X + distance, player.Y);
+            case "E":
+                return new Position(player.X, player.Y + distance);
+            case "W":
+                return new Position(player.X, player.Y - distance);
+            case "S":
+                return new Position(player.X - distance, player.Y);
+            default:
+                break;
+        }
+        return new Position(player.X, player.Y);
+    }
+    public static string MoveArenaCenter(this PlayerState player, List<int> Dims)
+    {
+        return player.MoveArenaCenter(Dims[0], Dims[1]);
+    }
+    public static string MoveArenaCenter(this PlayerState player, int dimX, int dimY)
+    {
+        var centerX = dimX / 2;
+        var centerY = dimY / 2;
+        switch (player.Direction.ToUpper())
+        {
+            case "N":
+                return player.X > centerX ? "L" : "R";
+            case "E":
+                return player.Y > centerY ? "L" : "R";
+            case "W":
+                return player.Y > centerY ? "R" : "L";
+            case "S":
+                return player.X > centerX ? "R" : "L";
+            default:
+                break;
+        }
+        return "R";
     }
     public static Range GetAttackRange(this PlayerState player, int attackDistance)
     {
@@ -185,10 +328,10 @@ class Visual
         {
             if (j == 0)
             {
-                Console.Write("    ");
+                Console.Write("\t");
                 for (int i = 0; i < dimX; i++)
                 {
-                    Console.Write(i.ToString().PadLeft(2, '0') + " ");
+                    Console.Write(i.ToString().PadLeft(2, '0') + "\t");
                 }
                 Console.WriteLine();
             }

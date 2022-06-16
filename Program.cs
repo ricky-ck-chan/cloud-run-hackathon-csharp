@@ -8,10 +8,10 @@ app.MapGet("/", () => "Let the battle begin!");
 app.MapPost("/", (ArenaUpdate model) =>
 {
     Console.WriteLine(model);
-    string[] commands = { "F", "R", "L", "T" };
-    var i = Random.Shared.Next(4);
-
-    return commands[i];
+    var p = new Position(-1, 3);
+    var result = Flow.Process(model);
+    Console.WriteLine($"Result [{result}]");
+    return result;
 });
 
 app.Run($"http://0.0.0.0:{port}");

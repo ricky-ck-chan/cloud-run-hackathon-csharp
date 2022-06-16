@@ -50,9 +50,13 @@
             Visual.AddMessageLine($"I can {(canEscape ? "" : "NOT ")}escape");
             if (canEscape)
                 return "F";
-            if (isLeftPlayerFacingMe && !me.RightIsWall(dims))
+            if (me.RightIsWall(dims))
+                return "L";
+            if (me.LeftIsWall(dims))
                 return "R";
-            if (isRightPlayerFacingMe && !me.LeftIsWall(dims))
+            if (isLeftPlayerFacingMe)
+                return "R";
+            if (isRightPlayerFacingMe)
                 return "L";
             if (leftPlayers.Count() > 0)
                 return "L";

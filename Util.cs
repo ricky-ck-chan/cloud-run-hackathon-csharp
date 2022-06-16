@@ -22,8 +22,8 @@ static class Extension
     }
     public static bool LeftIsWall(this PlayerState player, List<int> Dims)
     {
-        var dimX = Dims[0];
-        var dimY = Dims[1];
+        var dimX = Dims[0] - 1;
+        var dimY = Dims[1] - 1;
         switch (player.Direction.ToUpper())
         {
             case "N":
@@ -41,8 +41,8 @@ static class Extension
     }
     public static bool RightIsWall(this PlayerState player, List<int> Dims)
     {
-        var dimX = Dims[0];
-        var dimY = Dims[1];
+        var dimX = Dims[0] - 1;
+        var dimY = Dims[1] - 1;
         switch (player.Direction.ToUpper())
         {
             case "N":

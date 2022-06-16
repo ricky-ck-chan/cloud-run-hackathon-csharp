@@ -62,6 +62,17 @@ static class Extension
         }
         return false;
     }
+    public static bool IsInCorner(this PlayerState player, List<int> Dims)
+    {
+        var dimX = Dims[0] - 1;
+        var dimY = Dims[1] - 1;
+        return
+            (player.X == 0 && player.Y == 0) ||
+            (player.X == 0 && player.Y == dimY) ||
+            (player.X == dimX && player.Y == 0) ||
+            (player.X == dimX && player.Y == dimY)
+            ;
+    }
     public static bool IsWall(this Position pos, List<int> Dims)
     {
         var dimX = Dims[0] - 1;

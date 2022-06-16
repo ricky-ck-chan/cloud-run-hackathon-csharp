@@ -18,6 +18,18 @@
         var canMoveForward = me.CanMoveForward(model.Arena.Dims, otherPlayers);
         Visual.AddMessageLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
 
+        if (me.IsInCorner(dims))
+        {
+            Visual.AddMessageLine("I'm in corner");
+            if (canMoveForward)
+                return "F";
+            if (me.RightIsWall(dims))
+                return "L";
+            if (me.LeftIsWall(dims))
+                return "R";
+            me.MoveArenaCenter(dims);
+        }
+
         var leftPositions = me.GetLeftPositions(attackDistance);
         var leftPlayers = leftPositions.Select(x => x.GetPlayerInPosition(state)).OfType<PlayerState>().ToList();
         var isLeftPlayerFacingMe = leftPlayers.Any(x => x.IsFacing(me));
@@ -79,7 +91,7 @@
                 return "L";
             if (rightPlayers.Count() > 0)
                 return "R";
-            return me.MoveArenaCenter(model.Arena.Dims);
+            return me.MoveArenaCenter(dims);
         }
 
         var frontPositions = me.GetFrontPositions(attackDistance);
@@ -98,14 +110,23 @@
             Visual.AddMessageLine("Hunt front player");
             return "F";
         }
-
         if (leftPlayers.Count() > 0)
+        {
+            Visual.AddMessageLine("Hunt left player");
             return "F";
+        }
         if (rightPlayers.Count() > 0)
+        {
+            Visual.AddMessageLine("Hunt right player");
             return "R";
+        }
 
         if (canMoveForward && !me.GetFrontPosition().IsWall(dims))
+        {
+            Visual.AddMessageLine("Pactrol");
             return "F";
+        }
+        Visual.AddMessageLine("Center");
         return me.MoveArenaCenter(model.Arena.Dims);
     }
 }

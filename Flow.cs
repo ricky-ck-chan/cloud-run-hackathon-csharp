@@ -113,7 +113,7 @@
         if (leftPlayers.Count() > 0)
         {
             Visual.AddMessageLine("Hunt left player");
-            return "F";
+            return "L";
         }
         if (rightPlayers.Count() > 0)
         {

@@ -11,7 +11,9 @@
         if (!state.ContainsKey(model.Links.Self.Href)) { Visual.AddMessageLine("Cannot find me"); return "T"; }
 
         var me = state[model.Links.Self.Href];
+        var front = me.GetFrontPosition();
         var otherPlayers = state.Values.Where(x => x != me).ToList();
+        var numberPlayersFacingMe = 0;
 
         var canMoveForward = me.CanMoveForward(model.Arena.Dims, otherPlayers);
         Visual.AddMessageLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
@@ -20,20 +22,32 @@
         var leftPlayers = leftPositions.Select(x => x.GetPlayerInPosition(state)).OfType<PlayerState>().ToList();
         var isLeftPlayerFacingMe = leftPlayers.Any(x => x.IsFacing(me));
         if (isLeftPlayerFacingMe)
+        {
+            numberPlayersFacingMe++;
             Visual.AddMessageLine("Someone facing me in left");
+        }
 
 
         var rightPositions = me.GetRightPositions(attackDistance);
         var rightPlayers = rightPositions.Select(x => x.GetPlayerInPosition(state)).OfType<PlayerState>().ToList();
         var isRightPlayerFacingMe = rightPlayers.Any(x => x.IsFacing(me));
         if (isRightPlayerFacingMe)
+        {
+            numberPlayersFacingMe++;
             Visual.AddMessageLine("Someone facing me in right");
+        }
 
         var backPositions = me.GetBackPositions(attackDistance);
         var backPlayers = backPositions.Select(x => x.GetPlayerInPosition(state)).OfType<PlayerState>().ToList();
         var isBackPlayerFacingMe = backPlayers.Any(x => x.IsFacing(me));
         if (isBackPlayerFacingMe)
+        {
+            numberPlayersFacingMe++;
             Visual.AddMessageLine("Someone facing me in back");
+        }
+
+        if (numberPlayersFacingMe > 1 && !front.HasPlayer(state))
+            return "F";
 
         var inAttackRange = isBackPlayerFacingMe || isLeftPlayerFacingMe || isRightPlayerFacingMe;
         Visual.AddMessageLine($"I'm {(inAttackRange ? "" : "NOT ")}in attack range");

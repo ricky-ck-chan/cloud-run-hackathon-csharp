@@ -3,6 +3,10 @@ record Position(int X, int Y);
 record Range(Position Start, Position End);
 static class Extension
 {
+    public static bool HasPlayer(this Position pos, Dictionary<string, PlayerState> State)
+    {
+        return pos.GetPlayerInPosition(State) != null;
+    }
     public static bool IsFacing(this PlayerState player, PlayerState target)
     {
         switch (player.Direction.ToUpper())

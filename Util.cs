@@ -20,6 +20,44 @@ static class Extension
         }
         return false;
     }
+    public static bool LeftIsWall(this PlayerState player, List<int> Dims)
+    {
+        var dimX = Dims[0];
+        var dimY = Dims[1];
+        switch (player.Direction.ToUpper())
+        {
+            case "N":
+                return player.X == 0;
+            case "E":
+                return player.Y == 0;
+            case "W":
+                return player.Y == dimY;
+            case "S":
+                return player.X == dimX;
+            default:
+                break;
+        }
+        return false;
+    }
+    public static bool RightIsWall(this PlayerState player, List<int> Dims)
+    {
+        var dimX = Dims[0];
+        var dimY = Dims[1];
+        switch (player.Direction.ToUpper())
+        {
+            case "N":
+                return player.X == dimX;
+            case "E":
+                return player.Y == dimY;
+            case "W":
+                return player.Y == 0;
+            case "S":
+                return player.X == 0;
+            default:
+                break;
+        }
+        return false;
+    }
     public static IEnumerable<Position> GetLeftPositions(this PlayerState player, int distance)
     {
         var poss = new List<Position>();
@@ -219,13 +257,13 @@ static class Extension
                 result = player.Y != 0;
                 break;
             case "E":
-                result = player.Y != dimX - 1;
+                result = player.X != dimX - 1;
                 break;
             case "W":
                 result = player.X != 0;
                 break;
             case "S":
-                result = player.X != dimY - 1;
+                result = player.Y != dimY - 1;
                 break;
             default:
                 break;

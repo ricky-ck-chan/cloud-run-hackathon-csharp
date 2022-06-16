@@ -3,42 +3,49 @@
     static readonly int attackDistance = 3;
     internal static string Process(ArenaUpdate model)
     {
-        Console.WriteLine(nameof(Process));
-        Visual.PrintConsole(model,attackDistance);
+        Visual.AddMessageLine(nameof(Process));
+        Visual.PrintMessage(model, attackDistance);
         var commands = new List<string> { "F", "R", "L", "T" };
         var state = model.Arena.State;
-        if (!state.ContainsKey(model.Links.Self.Href)) { Console.WriteLine("Cannot find me"); return "T"; }
+        if (!state.ContainsKey(model.Links.Self.Href)) { Visual.AddMessageLine("Cannot find me"); return "T"; }
 
         var me = state[model.Links.Self.Href];
         var otherPlayers = state.Values.Where(x => x != me).ToList();
-        var myFront = me.GetFrontPosition();
 
-        if (me.GetPlayersInAttackRange(otherPlayers, attackDistance).Any(x => x.WasHit != true))
+        var isAnyoneInAttachRange = me.IsAnyoneInAttachRange(otherPlayers, attackDistance);
+        if (isAnyoneInAttachRange)
         {
-            Console.WriteLine("Someone in my attack range");
+            Visual.AddMessageLine("Someone in my attack range");
             return "T";
         }
         else
-            Console.WriteLine("No one in my attack range");
+            Visual.AddMessageLine("No one in my attack range");
 
         var canMoveForward = me.CanMoveForward(model.Arena.Dims, otherPlayers);
-        Console.WriteLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
+        Visual.AddMessageLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
 
         var inAttackRange = !me.GetPosition().IsSafePosition(otherPlayers, attackDistance);
-        Console.WriteLine($"I'm {(inAttackRange ? "" : "NOT ")}in attack range");
+        Visual.AddMessageLine($"I'm {(inAttackRange ? "" : "NOT ")}in attack range");
         if (inAttackRange)
         {
             var canEscape = false;
             if (canMoveForward)
             {
                 var frontInAttackRange = !me.GetFrontPosition().IsSafePosition(otherPlayers, attackDistance);
-                Console.WriteLine($"My front {(frontInAttackRange ? "" : "NOT ")}in attack range");
+                Visual.AddMessageLine($"My front {(frontInAttackRange ? "" : "NOT ")}in attack range");
                 if (!frontInAttackRange)
                     canEscape = true;
             }
-            Console.WriteLine($"I can {(canEscape ? "" : "NOT ")}escape");
+            Visual.AddMessageLine($"I can {(canEscape ? "" : "NOT ")}escape");
             if (canEscape)
                 return "F";
+        }
+
+        var isAnyoneInMyFrontAttachRange = me.IsAnyoneInAttachRange(otherPlayers, attackDistance + 1);
+        if (isAnyoneInMyFrontAttachRange)
+        {
+            Visual.AddMessageLine("Hunt front player");
+            return "F";
         }
 
 

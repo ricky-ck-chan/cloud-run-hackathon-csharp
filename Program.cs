@@ -7,10 +7,9 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.MapGet("/", () => "Let the battle begin!");
 app.MapPost("/", (ArenaUpdate model) =>
 {
-    Console.WriteLine(model);
-    var p = new Position(-1, 3);
     var result = Flow.Process(model);
-    Console.WriteLine($"Result [{result}]");
+    Visual.AddMessageLine($"Result [{result}]");
+    Visual.PrintMessage();
     return result;
 });
 

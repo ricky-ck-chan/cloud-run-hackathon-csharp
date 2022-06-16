@@ -47,9 +47,14 @@ static class Extension
         var maxY = Math.Max(range.Start.Y, range.End.Y);
         return minX <= pos.X && pos.X <= maxX && minY <= pos.Y && pos.Y <= maxY;
     }
+    public static bool IsAnyoneInAttachRange(this PlayerState player, IEnumerable<PlayerState> otherPlayers, int attackDistance)
+    {
+        return player.GetPlayersInAttackRange(otherPlayers, attackDistance).FirstOrDefault() != null;
+    }
     public static IEnumerable<PlayerState> GetPlayersInAttackRange(this PlayerState player, IEnumerable<PlayerState> otherPlayers, int attackDistance)
     {
-        return otherPlayers.Where(x => player != x && x.IsWithinRange(player.GetAttackRange(attackDistance)));
+        var attackRange = player.GetAttackRange(attackDistance);
+        return otherPlayers.Where(x => x.IsWithinRange(attackRange));
     }
     public static PlayerState? GetPlayerInPosition(this Position pos, Dictionary<string, PlayerState> State)
     {
@@ -95,9 +100,64 @@ static class Extension
 }
 class Visual
 {
+    public static string messageCache = "";
+    public static void AddMessageLine(string message = "") => messageCache += message + Environment.NewLine;
+    public static void AddMessage(string message = "") => messageCache += message;
+    public static void PrintMessage()
+    {
+        Task.Run(() =>
+        {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.WriteLine(messageCache);
+            messageCache = "";
+        });
+    }
+    public static void PrintMessage(ArenaUpdate model, int attackDistance)
+    {
+        var dimX = model.Arena.Dims[0];
+        var dimY = model.Arena.Dims[1];
+        var arena = new string[dimX, dimY];
+        var direction = new string[] { "N", "E", "W", "S" };
+        var meSign = new string[] { "▲", "▶", "◀", "▼" };
+        var othersSign = new string[] { "△", "▷", "◁", "▽" };
+
+        var state = model.Arena.State;
+        var me = state[model.Links.Self.Href];
+        var otherPlayers = state.Values.Where(x => x != me).ToList();
+        for (int i = 0; i < dimX; i++)
+        {
+            for (int j = 0; j < dimY; j++)
+            {
+                arena[i, j] = new Position(i, j).IsSafePosition(otherPlayers, attackDistance) ? "." : "*";
+            }
+        }
+        foreach (var player in otherPlayers)
+        {
+            arena[player.X, player.Y] = othersSign[Array.IndexOf(direction, player.Direction)];
+        }
+        arena[me.X, me.Y] = meSign[Array.IndexOf(direction, me.Direction)];
+
+        for (int j = 0; j < dimY; j++)
+        {
+            if (j == 0)
+            {
+                AddMessage("    ");
+                for (int i = 0; i < dimX; i++)
+                {
+                    AddMessage(i.ToString().PadLeft(2, '0') + " ");
+                }
+                AddMessageLine();
+            }
+            AddMessage(j.ToString().PadLeft(2, '0') + " ");
+            for (int i = 0; i < dimX; i++)
+            {
+                AddMessage("  " + arena[i, j]);
+            }
+            AddMessageLine();
+        }
+    }
     public static void PrintConsole(ArenaUpdate model, int attackDistance)
     {
-        Console.OutputEncoding = System.Text.Encoding.UTF8;
         var dimX = model.Arena.Dims[0];
         var dimY = model.Arena.Dims[1];
         var arena = new string[dimX, dimY];

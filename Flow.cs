@@ -47,7 +47,10 @@
         }
 
         if (numberPlayersFacingMe > 1 && !front.HasPlayer(state))
+        {
+            Visual.AddMessageLine("More than 1 player facing me");
             return "F";
+        }
 
         var inAttackRange = isBackPlayerFacingMe || isLeftPlayerFacingMe || isRightPlayerFacingMe;
         Visual.AddMessageLine($"I'm {(inAttackRange ? "" : "NOT ")}in attack range");
@@ -95,6 +98,11 @@
             Visual.AddMessageLine("Hunt front player");
             return "F";
         }
+
+        if (leftPlayers.Count() > 0)
+            return "F";
+        if (rightPlayers.Count() > 0)
+            return "R";
 
         if (canMoveForward && !me.GetFrontPosition().IsWall(dims))
             return "F";

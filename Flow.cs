@@ -76,7 +76,8 @@
             Visual.AddMessageLine("Hunt front player");
             return "F";
         }
-
-        return "F";
+        if (canMoveForward)
+            return "F";
+        return me.MoveArenaCenter(model.Arena.Dims);
     }
 }

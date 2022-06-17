@@ -101,6 +101,7 @@
             var canEscape = false;
             if (canMoveForward)
             {
+                return "F";
                 if (!frontInAttackRange)
                     canEscape = true;
                 if (numberPlayersFacingMe > 1)
@@ -128,6 +129,10 @@
 
             if (isLeftPlayerFacingMe && isRightPlayerFacingMe && canMoveForward)
                 return "F";
+            if (isLeftPlayerFacingMe || isRightPlayerFacingMe)
+            {
+
+            }
 
             if (!leftPosition.HasPlayer(state))
                 return "L";

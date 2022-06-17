@@ -129,10 +129,9 @@
             if (isLeftPlayerFacingMe && isRightPlayerFacingMe && canMoveForward)
                 return "F";
 
-            var LR = me.MoveArenaCenter(dims);
-            if (LR == "L" && !leftPosition.HasPlayer(state))
+            if (!leftPosition.HasPlayer(state))
                 return "L";
-            if (LR == "R" && !rightPosition.HasPlayer(state))
+            if (!rightPosition.HasPlayer(state))
                 return "R";
         }
 

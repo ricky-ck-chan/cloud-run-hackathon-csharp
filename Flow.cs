@@ -121,10 +121,13 @@
             if (isRightPlayerFacingMe)
                 return "L";
 
-            if (leftPlayers.Count > 0)
+            if (!isLeftPlayerFacingMe && leftPlayers.Count > 0)
                 return "L";
-            if (rightPlayers.Count > 0)
+            if (!isRightPlayerFacingMe && rightPlayers.Count > 0)
                 return "R";
+
+            if (isLeftPlayerFacingMe && isRightPlayerFacingMe && canMoveForward)
+                return "F";
 
             return me.MoveArenaCenter(dims);
         }

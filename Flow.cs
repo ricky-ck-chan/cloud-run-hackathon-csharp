@@ -11,24 +11,42 @@
         if (!state.ContainsKey(model.Links.Self.Href)) { Visual.AddMessageLine("Cannot find me"); return "T"; }
 
         var me = state[model.Links.Self.Href];
-        var front = me.GetFrontPosition();
         var otherPlayers = state.Values.Where(x => x != me).ToList();
-        var numberPlayersFacingMe = 0;
 
-        var canMoveForward = me.CanMoveForward(model.Arena.Dims, otherPlayers);
+        var canMoveForward = me.CanMoveForward(dims, otherPlayers);
         Visual.AddMessageLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
-
+        
         if (me.IsInCorner(dims))
         {
             Visual.AddMessageLine("I'm in corner");
             if (canMoveForward)
                 return "F";
+            Visual.AddMessageLine("Cannot move forward");
             if (me.RightIsWall(dims))
+            {
+                Visual.AddMessageLine("Wall in right");
+                var leftPosition = me.GetLeftPosition(attackDistance);
+                if (leftPosition.HasPlayer(state))
+                {
+                    Visual.AddMessageLine("Other player in left");
+                    return "T";
+                }
                 return "L";
+            }
             if (me.LeftIsWall(dims))
+            {
+                Visual.AddMessageLine("Wall in left");
+                var rightPosition = me.GetRightPosition(attackDistance);
+                if (rightPosition.HasPlayer(state))
+                {
+                    Visual.AddMessageLine("Other player in right");
+                    return "T";
+                }
                 return "R";
-            me.MoveArenaCenter(dims);
+            }
         }
+
+        var numberPlayersFacingMe = 0;
 
         var leftPositions = me.GetLeftPositions(attackDistance);
         var leftPlayers = leftPositions.Select(x => x.GetPlayerInPosition(state)).OfType<PlayerState>().ToList();
@@ -58,39 +76,38 @@
             Visual.AddMessageLine("Someone facing me in back");
         }
 
-        if (numberPlayersFacingMe > 1 && !front.HasPlayer(state))
-        {
-            Visual.AddMessageLine("More than 1 player facing me");
-            return "F";
-        }
+        Visual.AddMessageLine($"{numberPlayersFacingMe} player facing me");
 
         var inAttackRange = isBackPlayerFacingMe || isLeftPlayerFacingMe || isRightPlayerFacingMe;
         Visual.AddMessageLine($"I'm {(inAttackRange ? "" : "NOT ")}in attack range");
+        var frontInAttackRange = !me.GetFrontPosition().IsSafePosition(otherPlayers, attackDistance);
+        Visual.AddMessageLine($"My front {(frontInAttackRange ? "" : "NOT ")}in attack range");
         if (inAttackRange)
         {
             var canEscape = false;
             if (canMoveForward)
             {
-                var frontInAttackRange = !me.GetFrontPosition().IsSafePosition(otherPlayers, attackDistance);
-                Visual.AddMessageLine($"My front {(frontInAttackRange ? "" : "NOT ")}in attack range");
                 if (!frontInAttackRange)
                     canEscape = true;
             }
             Visual.AddMessageLine($"I can {(canEscape ? "" : "NOT ")}escape");
             if (canEscape)
                 return "F";
+
             if (me.RightIsWall(dims))
                 return "L";
             if (me.LeftIsWall(dims))
                 return "R";
+
             if (isLeftPlayerFacingMe)
                 return "R";
             if (isRightPlayerFacingMe)
                 return "L";
-            if (leftPlayers.Count() > 0)
+            if (leftPlayers.Count > 0)
                 return "L";
-            if (rightPlayers.Count() > 0)
+            if (rightPlayers.Count > 0)
                 return "R";
+
             return me.MoveArenaCenter(dims);
         }
 
@@ -110,23 +127,23 @@
             Visual.AddMessageLine("Hunt front player");
             return "F";
         }
-        if (leftPlayers.Count() > 0)
+        if (leftPlayers.Count > 0)
         {
             Visual.AddMessageLine("Hunt left player");
             return "L";
         }
-        if (rightPlayers.Count() > 0)
+        if (rightPlayers.Count > 0)
         {
             Visual.AddMessageLine("Hunt right player");
             return "R";
         }
 
-        if (canMoveForward && !me.GetFrontPosition().IsWall(dims))
+        if (canMoveForward && !me.GetFrontPosition().IsNearWall(dims) && !frontInAttackRange)
         {
             Visual.AddMessageLine("Pactrol");
             return "F";
         }
         Visual.AddMessageLine("Center");
-        return me.MoveArenaCenter(model.Arena.Dims);
+        return me.MoveArenaCenter(dims);
     }
 }

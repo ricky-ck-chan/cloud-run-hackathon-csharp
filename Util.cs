@@ -73,7 +73,7 @@ static class Extension
             (player.X == dimX && player.Y == dimY)
             ;
     }
-    public static bool IsWall(this Position pos, List<int> Dims)
+    public static bool IsNearWall(this Position pos, List<int> Dims)
     {
         var dimX = Dims[0] - 1;
         var dimY = Dims[1] - 1;

@@ -17,6 +17,13 @@
         Visual.AddMessageLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
         var frontPositions = me.GetFrontPositions(attackDistance);
         var isAnyoneInAttachRange = frontPositions.Any(x => x.GetPlayerInPosition(state) != null);
+        if (isAnyoneInAttachRange)
+        {
+            Visual.AddMessageLine("Someone in my attack range");
+            return "T";
+        }
+        else
+            Visual.AddMessageLine("No one in my attack range");
 
         if (me.IsInCorner(dims))
         {
@@ -129,13 +136,7 @@
             return me.MoveArenaCenter(dims);
         }
 
-        if (isAnyoneInAttachRange)
-        {
-            Visual.AddMessageLine("Someone in my attack range");
-            return "T";
-        }
-        else
-            Visual.AddMessageLine("No one in my attack range");
+     
 
         var isAnyoneInMyFrontAttachRange = me.IsAnyoneInAttachRange(otherPlayers, attackDistance + 1);
         if (isAnyoneInMyFrontAttachRange)

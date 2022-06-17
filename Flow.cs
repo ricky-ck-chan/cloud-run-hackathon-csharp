@@ -128,8 +128,6 @@
 
             if (isLeftPlayerFacingMe && isRightPlayerFacingMe && canMoveForward)
                 return "F";
-
-            return me.MoveArenaCenter(dims);
         }
 
         if (isAnyoneInAttachRange)

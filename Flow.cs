@@ -103,10 +103,13 @@
             {
                 if (!frontInAttackRange)
                     canEscape = true;
+                if (numberPlayersFacingMe > 1)
+                    canEscape = true;
             }
             Visual.AddMessageLine($"I can {(canEscape ? "" : "NOT ")}escape");
             if (canEscape)
                 return "F";
+
 
             if (me.RightIsWall(dims))
                 return "L";

@@ -17,6 +17,8 @@
         Visual.AddMessageLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
         var frontPositions = me.GetFrontPositions(attackDistance);
         var isAnyoneInAttachRange = frontPositions.Any(x => x.GetPlayerInPosition(state) != null);
+        var leftPosition = me.GetLeftPosition(attackDistance);
+        var rightPosition = me.GetRightPosition(attackDistance);
 
         if (me.IsInCorner(dims))
         {
@@ -27,7 +29,6 @@
             if (me.RightIsWall(dims))
             {
                 Visual.AddMessageLine("Wall in right");
-                var leftPosition = me.GetLeftPosition(attackDistance);
                 if (leftPosition.HasPlayer(state))
                 {
                     Visual.AddMessageLine("Other player in left");
@@ -39,7 +40,6 @@
             if (me.LeftIsWall(dims))
             {
                 Visual.AddMessageLine("Wall in left");
-                var rightPosition = me.GetRightPosition(attackDistance);
                 if (rightPosition.HasPlayer(state))
                 {
                     Visual.AddMessageLine("Other player in right");
@@ -128,6 +128,12 @@
 
             if (isLeftPlayerFacingMe && isRightPlayerFacingMe && canMoveForward)
                 return "F";
+
+            var LR = me.MoveArenaCenter(dims);
+            if (LR == "L" && !leftPosition.HasPlayer(state))
+                return "L";
+            if (LR == "R" && !rightPosition.HasPlayer(state))
+                return "R";
         }
 
         if (isAnyoneInAttachRange)

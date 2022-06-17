@@ -15,7 +15,9 @@
 
         var canMoveForward = me.CanMoveForward(dims, otherPlayers);
         Visual.AddMessageLine($"I can {(canMoveForward ? "" : "NOT ")}move forward");
-        
+        var frontPositions = me.GetFrontPositions(attackDistance);
+        var isAnyoneInAttachRange = frontPositions.Any(x => x.GetPlayerInPosition(state) != null);
+
         if (me.IsInCorner(dims))
         {
             Visual.AddMessageLine("I'm in corner");
@@ -29,7 +31,8 @@
                 if (leftPosition.HasPlayer(state))
                 {
                     Visual.AddMessageLine("Other player in left");
-                    return "T";
+                    if (isAnyoneInAttachRange)
+                        return "T";
                 }
                 return "L";
             }
@@ -40,7 +43,8 @@
                 if (rightPosition.HasPlayer(state))
                 {
                     Visual.AddMessageLine("Other player in right");
-                    return "T";
+                    if (isAnyoneInAttachRange)
+                        return "T";
                 }
                 return "R";
             }
@@ -82,6 +86,16 @@
         Visual.AddMessageLine($"I'm {(inAttackRange ? "" : "NOT ")}in attack range");
         var frontInAttackRange = !me.GetFrontPosition().IsSafePosition(otherPlayers, attackDistance);
         Visual.AddMessageLine($"My front {(frontInAttackRange ? "" : "NOT ")}in attack range");
+
+        var frontIsWall = me.IsFacingWall(dims);
+        if (!canMoveForward && isLeftPlayerFacingMe && isRightPlayerFacingMe && isBackPlayerFacingMe)
+        {
+            if (frontIsWall)
+                return me.MoveArenaCenter(dims);
+            else
+                return "T";
+        }
+
         if (inAttackRange)
         {
             var canEscape = false;
@@ -103,6 +117,7 @@
                 return "R";
             if (isRightPlayerFacingMe)
                 return "L";
+
             if (leftPlayers.Count > 0)
                 return "L";
             if (rightPlayers.Count > 0)
@@ -111,8 +126,6 @@
             return me.MoveArenaCenter(dims);
         }
 
-        var frontPositions = me.GetFrontPositions(attackDistance);
-        var isAnyoneInAttachRange = frontPositions.Any(x => x.GetPlayerInPosition(state) != null);
         if (isAnyoneInAttachRange)
         {
             Visual.AddMessageLine("Someone in my attack range");

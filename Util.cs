@@ -24,6 +24,25 @@ static class Extension
         }
         return false;
     }
+    public static bool IsFacingWall(this PlayerState player, List<int> Dims)
+    {
+        var dimX = Dims[0] - 1;
+        var dimY = Dims[1] - 1;
+        switch (player.Direction.ToUpper())
+        {
+            case "N":
+                return player.X == 0;
+            case "E":
+                return player.Y == dimY;
+            case "W":
+                return player.Y == 0;
+            case "S":
+                return player.X == dimX;
+            default:
+                break;
+        }
+        return false;
+    }
     public static bool LeftIsWall(this PlayerState player, List<int> Dims)
     {
         var dimX = Dims[0] - 1;
